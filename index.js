@@ -53,10 +53,37 @@ const requestListener = (req, res) => {
         res.end(JSON.stringify(todos));
       })
       .catch(err => console.log(err.message));
-    // } else if (req.url === '/todos' && req.method === 'PUT') {
-    //   updateTodo(req.body);
-    //   res.writeHead(200);
-    //   res.end(JSON.stringify(todos));
+  } else if (req.method === 'PUT') {
+    const parsed = url.parse(req.url);
+    const query = querystring.parse(parsed.query);
+    let body = '';
+    req.on('data', function (data) {
+      body += data;
+    });
+    req.on('end', function () {
+      let text = JSON.parse(body);
+      fs.readFile(todosPath, 'utf-8')
+        .then(data => {
+          const todos = JSON.parse(data);
+          console.log('queryid', query.id);
+          const todoToUpdate = todos.find(todo => todo.id === query.id);
+          const newTodo = {
+            id: todoToUpdate.id,
+            description: text,
+            completed: todoToUpdate.completed,
+          };
+          const newTodos = todos.map(todo => {
+            if (todo.id === query.id) {
+              todo = newTodo;
+            }
+            return todo;
+          });
+          fs.writeFile(todosPath, JSON.stringify(newTodos, null, 2));
+          res.writeHead(200);
+          res.end(JSON.stringify(todos));
+        })
+        .catch(err => console.log(err.message));
+    });
   } else {
     res.writeHead(404);
     res.end(JSON.stringify({ message: 'Not found' }));
