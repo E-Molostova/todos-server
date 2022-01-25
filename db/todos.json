@@ -1,0 +1,27 @@
+[
+  {
+    "id": 1,
+    "description": "Learn node.js",
+    "completed": false
+  },
+  {
+    "id": 2,
+    "description": "Learn redux",
+    "completed": false
+  },
+  {
+    "id": 3,
+    "description": "Learn react",
+    "completed": false
+  },
+  {
+    "id": "PL-wX1aZQ",
+    "description": "do smth",
+    "completed": false
+  },
+  {
+    "id": "1JaIGOU4-",
+    "description": "add item 2",
+    "completed": false
+  }
+]
