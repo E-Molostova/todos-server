@@ -5,15 +5,17 @@ const shortid = require('shortid');
 const url = require('url');
 const querystring = require('querystring');
 const todosPath = path.resolve('./db/todos.json');
+const todos = require(todosPath);
 
 const host = 'localhost';
 const port = 8000;
 
-const todos = require('./db/todos.json');
-
 const requestListener = (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
+  // res.setHeader('Access-Control-Allow-Origin', '*');
+  // res.setHeader('Content-Type', 'application/json');
   if (req.url === '/todos' && req.method === 'GET') {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Content-Type', 'application/json');
     res.writeHead(200);
     res.end(JSON.stringify(todos));
   } else if (req.url === '/todos' && req.method === 'POST') {
@@ -26,7 +28,6 @@ const requestListener = (req, res) => {
       fs.readFile(todosPath)
         .then(data => {
           const todos = JSON.parse(data);
-
           JSON.stringify(
             todos.push({
               id: shortid(),
@@ -35,22 +36,27 @@ const requestListener = (req, res) => {
             }),
           );
           fs.writeFile(todosPath, JSON.stringify(todos, null, 2));
+          res.setHeader('Access-Control-Allow-Origin', '*');
+          res.setHeader('Content-Type', 'application/json');
           res.writeHead(200);
           res.end(JSON.stringify(todos));
         })
         .catch(err => console.log(err.message));
     });
+    res.writeHead(200);
+    res.end(JSON.stringify(todos));
   } else if (req.method === 'DELETE') {
     const parsed = url.parse(req.url);
     const query = querystring.parse(parsed.query);
     fs.readFile(todosPath, 'utf-8')
       .then(data => {
         const todos = JSON.parse(data);
-
         const newTodos = todos.filter(item => item.id !== query.id);
         fs.writeFile(todosPath, JSON.stringify(newTodos, null, 2));
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Content-Type', 'application/json');
         res.writeHead(200);
-        res.end(JSON.stringify(todos));
+        res.end(JSON.stringify(newTodos));
       })
       .catch(err => console.log(err.message));
   } else if (req.method === 'PUT') {
@@ -79,8 +85,10 @@ const requestListener = (req, res) => {
             return todo;
           });
           fs.writeFile(todosPath, JSON.stringify(newTodos, null, 2));
+          res.setHeader('Access-Control-Allow-Origin', '*');
+          res.setHeader('Content-Type', 'application/json');
           res.writeHead(200);
-          res.end(JSON.stringify(todos));
+          res.end(JSON.stringify(newTodos));
         })
         .catch(err => console.log(err.message));
     });
@@ -106,6 +114,8 @@ server.listen(port, host, () => {
 
 // app.use("/api/todos", todosRouter);
 
+// var staticPath = path.join(__dirname, '/');
+// app.use(express.static(staticPath));
 // const PORT = process.env.PORT || 8000;
 
 // app.listen(PORT, () => {
