@@ -1,37 +1,17 @@
 [
   {
-    "id": 1,
-    "description": "Learn node.js",
+    "id": "A1c4i-3Zl",
+    "description": "7489",
     "completed": false
   },
   {
-    "id": 2,
-    "description": "Learn redux",
-    "completed": false
+    "id": "vwPjBA-Qi",
+    "description": "46",
+    "completed": true
   },
   {
-    "id": 3,
-    "description": "Learn react",
-    "completed": false
-  },
-  {
-    "id": "PL-wX1aZQ",
-    "description": "text changed",
-    "completed": false
-  },
-  {
-    "id": "_vzpYDXOh",
-    "description": "item test added",
-    "completed": false
-  },
-  {
-    "id": "DFv4xsNpv",
-    "description": "item test2 added",
-    "completed": false
-  },
-  {
-    "id": "MTV_tQ3SZ",
-    "description": "item test5 added",
+    "id": "Cah8VtVbc",
+    "description": "7418",
     "completed": false
   }
 ]
