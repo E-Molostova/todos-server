@@ -84,21 +84,25 @@ const requestListener = (req, res) => {
         let parsedBody = JSON.parse(body);
         fs.readFile(todosPath, 'utf-8')
           .then(data => {
-            const todos = JSON.parse(data);
-            const todoToUpdate = todos.find(todo => todo.id === parsedBody.id);
-            const newTodo = {
-              ...todoToUpdate,
-              ...parsedBody,
-            };
-            const newTodos = todos.map(todo => {
-              if (todo.id === todoToUpdate.id) {
-                todo = newTodo;
-              }
-              return todo;
-            });
-            fs.writeFile(todosPath, JSON.stringify(newTodos, null, 2));
-            res.writeHead(200, headers);
-            res.end(JSON.stringify(newTodos));
+            if (parsedBody !== undefined) {
+              const todos = JSON.parse(data);
+              const todoToUpdate = todos.find(
+                todo => todo.id === parsedBody.id,
+              );
+              const newTodo = {
+                ...todoToUpdate,
+                ...parsedBody,
+              };
+              const newTodos = todos.map(todo => {
+                if (todo.id === todoToUpdate.id) {
+                  todo = newTodo;
+                }
+                return todo;
+              });
+              fs.writeFile(todosPath, JSON.stringify(newTodos, null, 2));
+              res.writeHead(200, headers);
+              res.end(JSON.stringify(newTodos));
+            }
           })
           .catch(err => console.log(err.message));
       });
