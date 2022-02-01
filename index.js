@@ -20,16 +20,8 @@ const requestListener = (req, res) => {
   };
 
   const regExpTodos = new RegExp('^/todos[?]+[A-Za-z0-9]');
-  const isMatchTodos = regExpTodos.test('/todos');
-
   const regExpToggleCompleted = new RegExp('^/todos/toggle-completed$');
-  const isMatchToggle = regExpToggleCompleted.test('/todos/toggle-completed');
-
   const regExpClearCompleted = new RegExp('^/todos/clear-completed$');
-  const isMatchClear = regExpClearCompleted.test('/todos/clear-completed');
-
-  // const isMatchedUrl = regExp.test('');
-  // console.log(regExp.test('/todos?id=5MgNLLLFZ'));
 
   if (req.method === 'OPTIONS') {
     res.writeHead(204, headers);
