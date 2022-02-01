@@ -16,8 +16,20 @@ const requestListener = (req, res) => {
     'Access-Control-Request-Method': '*',
     'Access-Control-Allow-Methods': '*',
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Headers': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
   };
+
+  const regExpTodos = new RegExp('^/todos[?]+[A-Za-z0-9]');
+  const isMatchTodos = regExpTodos.test('/todos');
+
+  const regExpToggleCompleted = new RegExp('^/todos/toggle-completed$');
+  const isMatchToggle = regExpToggleCompleted.test('/todos/toggle-completed');
+
+  const regExpClearCompleted = new RegExp('^/todos/clear-completed$');
+  const isMatchClear = regExpClearCompleted.test('/todos/clear-completed');
+
+  // const isMatchedUrl = regExp.test('');
+  // console.log(regExp.test('/todos?id=5MgNLLLFZ'));
 
   if (req.method === 'OPTIONS') {
     res.writeHead(204, headers);
@@ -25,7 +37,7 @@ const requestListener = (req, res) => {
     return;
   }
 
-  if (['GET', 'POST', 'DELETE', 'PUT'].indexOf(req.method) > -1) {
+  if (['GET', 'POST', 'OPTIONS', 'DELETE', 'PUT'].indexOf(req.method) > -1) {
     res.writeHead(200, headers);
     if (req.url === '/todos' && req.method === 'GET') {
       res.writeHead(200, headers);
@@ -48,12 +60,12 @@ const requestListener = (req, res) => {
               }),
             );
             fs.writeFile(todosPath, JSON.stringify(todos, null, 2));
-            res.writeHead(200, headers);
+
             res.end(JSON.stringify(todos));
           })
           .catch(err => console.log(err.message));
       });
-    } else if (req.method === 'DELETE') {
+    } else if (regExpTodos.test(req.url) && req.method === 'DELETE') {
       const parsed = url.parse(req.url);
       const query = querystring.parse(parsed.query);
       fs.readFile(todosPath, 'utf-8')
@@ -61,12 +73,10 @@ const requestListener = (req, res) => {
           const todos = JSON.parse(data);
           const newTodos = todos.filter(item => item.id !== query.id);
           fs.writeFile(todosPath, JSON.stringify(newTodos, null, 2));
-
-          res.writeHead(200, headers);
           res.end(JSON.stringify(newTodos));
         })
         .catch(err => console.log(err.message));
-    } else if (req.url === '/todos/clear-completed') {
+    } else if (regExpClearCompleted.test(req.url) && req.method === 'DELETE') {
       fs.readFile(todosPath, 'utf-8')
         .then(data => {
           const todos = JSON.parse(data);
@@ -75,7 +85,28 @@ const requestListener = (req, res) => {
           res.end(JSON.stringify(newTodos));
         })
         .catch(err => console.log(err.message));
-    } else if (req.method === 'PUT') {
+    } else if (regExpToggleCompleted.test(req.url) && req.method === 'PUT') {
+      fs.readFile(todosPath, 'utf-8')
+        .then(data => {
+          const todos = JSON.parse(data);
+          const isAnyActive = todos.some(todo => todo.completed === false);
+          let newTodos;
+          if (isAnyActive) {
+            newTodos = todos.map(todo => {
+              todo.completed = true;
+              return todo;
+            });
+          } else {
+            newTodos = todos.map(todo => {
+              todo.completed = false;
+              return todo;
+            });
+          }
+          fs.writeFile(todosPath, JSON.stringify(newTodos, null, 2));
+          res.end(JSON.stringify(newTodos));
+        })
+        .catch(err => console.log(err.message));
+    } else if (regExpTodos.test(req.url) && req.method === 'PUT') {
       let body = '';
       req.on('data', function (data) {
         body = data;
@@ -106,27 +137,6 @@ const requestListener = (req, res) => {
           })
           .catch(err => console.log(err.message));
       });
-    } else if (req.url === '/todos/toggle-completed') {
-      fs.readFile(todosPath, 'utf-8')
-        .then(data => {
-          const todos = JSON.parse(data);
-          const isAnyActive = todos.some(todo => todo.completed === false);
-          let newTodos;
-          if (isAnyActive) {
-            newTodos = todos.map(todo => {
-              todo.completed = true;
-              return todo;
-            });
-          } else {
-            newTodos = todos.map(todo => {
-              todo.completed = false;
-              return todo;
-            });
-          }
-          fs.writeFile(todosPath, JSON.stringify(newTodos, null, 2));
-          res.end(JSON.stringify(newTodos));
-        })
-        .catch(err => console.log(err.message));
     } else {
       res.writeHead(404);
       res.end(JSON.stringify({ message: 'Not found' }));
