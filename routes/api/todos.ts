@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
-import { collections } from '../../service/database.service';
+import { collections } from '../../service/database';
 import Todo from '../../model/todo';
 
 export const todosRouter = express.Router();

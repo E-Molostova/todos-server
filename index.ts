@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import { connectToDatabase } from './service/database.service';
+import { connectToDatabase } from './service/database';
 import { todosRouter } from './routes/api/todos';
 require('dotenv').config();
 
