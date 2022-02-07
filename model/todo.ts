@@ -1,17 +1,9 @@
-// const { ObjectId } = require('mongodb');
-
-// class TodoSchema {
-//     constructor(
-//     public description: string,
-//     public completed: boolean,
-//     // public id?: ObjectId,
-//   ) {}
-// }
+import { ObjectId } from 'mongodb';
 
 interface Todo {
-  _id?: string;
+  _id?: ObjectId;
   description: string;
   completed: boolean;
 }
 
-// module.exports = Todo;
+export default Todo;
