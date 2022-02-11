@@ -46,7 +46,7 @@ todosRouter.delete('/:id', async (req: Request, res: Response) => {
   }
 });
 
-todosRouter.put('/:id', async (req, res, next) => {
+todosRouter.put('/:id', async (req: Request, res: Response) => {
   const id = req?.params?.id;
   try {
     const updatedTodo: Todo = req.body as Todo;
@@ -59,11 +59,10 @@ todosRouter.put('/:id', async (req, res, next) => {
       : res.status(304).send(`Todo with id: ${id} not updated`);
   } catch (err) {
     res.status(400).send(err.message);
-    next(err);
   }
 });
 
-todosRouter.get('/:id', async (req, res, next) => {
+todosRouter.get('/:id', async (req: Request, res: Response) => {
   const id = req?.params?.id;
   try {
     const query = { _id: new ObjectId(id) };
@@ -72,7 +71,38 @@ todosRouter.get('/:id', async (req, res, next) => {
       res.status(200).send(todo);
     }
   } catch (err) {
-    next(err);
     res.status(404).send(`Unable to find matching document with id: ${id}`);
+  }
+});
+
+todosRouter.delete('/clear-completed', async (req: Request, res: Response) => {
+  try {
+    const todos = (await collections.todos.find({}).toArray()) as Todo[];
+    const result = todos.filter(item => item.completed === false);
+    res.status(200).send(result);
+  } catch (err) {
+    res.status(400).send(err.message);
+  }
+});
+
+todosRouter.delete('/toggle-completed', async (req: Request, res: Response) => {
+  try {
+    const todos = (await collections.todos.find({}).toArray()) as Todo[];
+    const isAnyActive = todos.some(todo => todo.completed === false);
+    let newTodos;
+    if (isAnyActive) {
+      newTodos = todos.map(todo => {
+        todo.completed = true;
+        return todo;
+      });
+    } else {
+      newTodos = todos.map(todo => {
+        todo.completed = false;
+        return todo;
+      });
+    }
+    res.status(200).send(newTodos);
+  } catch (err) {
+    res.status(400).send(err.message);
   }
 });
