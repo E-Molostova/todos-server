@@ -85,7 +85,7 @@ todosRouter.delete('/clear-completed', async (req: Request, res: Response) => {
   }
 });
 
-todosRouter.delete('/toggle-completed', async (req: Request, res: Response) => {
+todosRouter.put('/toggle-completed', async (req: Request, res: Response) => {
   try {
     const todos = (await collections.todos.find({}).toArray()) as Todo[];
     const isAnyActive = todos.some(todo => todo.completed === false);
