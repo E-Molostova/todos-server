@@ -60,22 +60,21 @@ todosRouter.put('/toggle-completed', async (req: Request, res: Response) => {
   try {
     const todos = (await collections.todos.find({}).toArray()) as Todo[];
     const isAnyActive = todos.some(todo => todo.completed === false);
-
+    let newTodos;
     if (isAnyActive) {
-      collections.todos.updateMany(
+      await collections.todos.updateMany(
         { completed: false },
         { $set: { completed: true } },
       );
-      let newTodos = (await collections.todos.find({}).toArray()) as Todo[];
-      res.status(200).send(newTodos);
+      newTodos = (await collections.todos.find({}).toArray()) as Todo[];
     } else {
-      collections.todos.updateMany(
+      await collections.todos.updateMany(
         { completed: true },
         { $set: { completed: false } },
       );
-      let newTodos = (await collections.todos.find({}).toArray()) as Todo[];
-      res.status(200).send(newTodos);
+      newTodos = (await collections.todos.find({}).toArray()) as Todo[];
     }
+    res.status(200).send(newTodos);
   } catch (err) {
     res.status(401).send(err.message);
   }
