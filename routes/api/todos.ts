@@ -19,13 +19,23 @@ todosRouter.post('/', async (req: Request, res: Response) => {
   try {
     const newTodo = { ...req.body, completed: false } as Todo;
     const result = await collections.todos.insertOne(newTodo);
+    const todos = (await collections.todos.find({}).toArray()) as Todo[];
     result
-      ? res
-          .status(201)
-          .send(`Successfully created a new todo with id ${result.insertedId}`)
+      ? res.status(201).send(todos)
       : res.status(500).send('Failed to create a new todo.');
   } catch (err) {
     res.status(400).send(err.message);
+  }
+});
+
+todosRouter.delete('/clear-completed', async (req: Request, res: Response) => {
+  try {
+    await collections.todos.deleteMany({ completed: true });
+    const todos = (await collections.todos.find({}).toArray()) as Todo[];
+    res.status(200).send(todos);
+  } catch (err) {
+    console.log(err);
+    res.status(401).send(err.message);
   }
 });
 
@@ -46,6 +56,31 @@ todosRouter.delete('/:id', async (req: Request, res: Response) => {
   }
 });
 
+todosRouter.put('/toggle-completed', async (req: Request, res: Response) => {
+  try {
+    const todos = (await collections.todos.find({}).toArray()) as Todo[];
+    const isAnyActive = todos.some(todo => todo.completed === false);
+
+    if (isAnyActive) {
+      collections.todos.updateMany(
+        { completed: false },
+        { $set: { completed: true } },
+      );
+      let newTodos = (await collections.todos.find({}).toArray()) as Todo[];
+      res.status(200).send(newTodos);
+    } else {
+      collections.todos.updateMany(
+        { completed: true },
+        { $set: { completed: false } },
+      );
+      let newTodos = (await collections.todos.find({}).toArray()) as Todo[];
+      res.status(200).send(newTodos);
+    }
+  } catch (err) {
+    res.status(401).send(err.message);
+  }
+});
+
 todosRouter.put('/:id', async (req: Request, res: Response) => {
   const id = req?.params?.id;
   try {
@@ -54,8 +89,9 @@ todosRouter.put('/:id', async (req: Request, res: Response) => {
     const result = await collections.todos.updateOne(query, {
       $set: updatedTodo,
     });
+    const todos = (await collections.todos.find({}).toArray()) as Todo[];
     result
-      ? res.status(200).send(`Successfully updated todo with id ${id}`)
+      ? res.status(200).send(todos)
       : res.status(304).send(`Todo with id: ${id} not updated`);
   } catch (err) {
     res.status(400).send(err.message);
@@ -72,37 +108,5 @@ todosRouter.get('/:id', async (req: Request, res: Response) => {
     }
   } catch (err) {
     res.status(404).send(`Unable to find matching document with id: ${id}`);
-  }
-});
-
-todosRouter.delete('/clear-completed', async (req: Request, res: Response) => {
-  try {
-    const todos = (await collections.todos.find({}).toArray()) as Todo[];
-    const result = todos.filter(item => item.completed === false);
-    res.status(200).send(result);
-  } catch (err) {
-    res.status(400).send(err.message);
-  }
-});
-
-todosRouter.put('/toggle-completed', async (req: Request, res: Response) => {
-  try {
-    const todos = (await collections.todos.find({}).toArray()) as Todo[];
-    const isAnyActive = todos.some(todo => todo.completed === false);
-    let newTodos;
-    if (isAnyActive) {
-      newTodos = todos.map(todo => {
-        todo.completed = true;
-        return todo;
-      });
-    } else {
-      newTodos = todos.map(todo => {
-        todo.completed = false;
-        return todo;
-      });
-    }
-    res.status(200).send(newTodos);
-  } catch (err) {
-    res.status(400).send(err.message);
   }
 });
