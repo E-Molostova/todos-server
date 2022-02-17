@@ -34,7 +34,6 @@ todosRouter.delete('/clear-completed', async (req: Request, res: Response) => {
     const todos = (await collections.todos.find({}).toArray()) as Todo[];
     res.status(200).send(todos);
   } catch (err) {
-    console.log(err);
     res.status(401).send(err.message);
   }
 });
@@ -44,8 +43,10 @@ todosRouter.delete('/:id', async (req: Request, res: Response) => {
   try {
     const query = { _id: new ObjectId(id) };
     const result = await collections.todos.deleteOne(query);
+
     if (result && result.deletedCount) {
-      res.status(202).send(`Successfully removed todo with id ${id}`);
+      const todos = (await collections.todos.find({}).toArray()) as Todo[];
+      res.status(202).send(todos);
     } else if (!result) {
       res.status(400).send(`Failed to remove todo with id ${id}`);
     } else if (!result.deletedCount) {
