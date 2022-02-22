@@ -1,12 +1,15 @@
 import express from 'express';
 import { BadRequest, Conflict, Unauthorized } from 'http-errors';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+require('dotenv').config();
 
 import { collections } from '../../service/database';
-import { User } from '../../model/user';
 import { joiRegisterSchema, joiLoginSchema } from '../../model/user';
 
 export const authRouter = express.Router();
+
+const { SECRET_KEY } = process.env;
 
 authRouter.post('/register', async (req, res, next) => {
   try {
@@ -42,6 +45,7 @@ authRouter.post('/login', async (req, res, next) => {
     }
     const { email, password } = req.body;
     const user = await collections.users.findOne({ email });
+
     if (!user) {
       throw new Unauthorized('Email or password is wrong!');
     }
@@ -49,6 +53,20 @@ authRouter.post('/login', async (req, res, next) => {
     if (!passwordCompare) {
       throw new Unauthorized('Email or password is wrong!');
     }
+    const { _id, name } = user;
+    const payload = {
+      id: _id,
+    };
+    // const token = jwt.sign(payload, SECRET_KEY, { expiresIn: '1h' });
+    const token = jwt.sign(payload, SECRET_KEY);
+    await collections.users.findOneAndUpdate({ _id }, { $set: { token } });
+    res.status(201).json({
+      token,
+      user: {
+        email,
+        name,
+      },
+    });
   } catch (error) {
     next(error);
   }

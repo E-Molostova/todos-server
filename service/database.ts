@@ -22,7 +22,7 @@ export async function connectToDatabase() {
     validator: {
       $jsonSchema: {
         bsonType: 'object',
-        required: ['description', 'completed'],
+        required: ['description', 'completed', 'owner'],
         additionalProperties: false,
         properties: {
           _id: {},
@@ -33,6 +33,10 @@ export async function connectToDatabase() {
           completed: {
             bsonType: 'bool',
             description: "'completed' is required and is a bool",
+          },
+          owner: {
+            bsonType: mongoDB.ObjectId,
+            description: "'owner' describes to whom belong todo-item",
           },
         },
       },
@@ -48,7 +52,6 @@ export async function connectToDatabase() {
 
   collections.todos = todosCollection;
   collections.users = usersCollection;
- 
 
   console.log(`Successfully connected to database: ${db.databaseName}`);
 }

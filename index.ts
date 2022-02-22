@@ -4,6 +4,7 @@ import bodyParser from 'body-parser';
 import { connectToDatabase } from './service/database';
 import { todosRouter } from './routes/api/todos';
 import { authRouter } from './routes/api/auth';
+import { usersRouter } from './routes/api/users';
 require('dotenv').config();
 
 const app = express();
@@ -16,6 +17,8 @@ connectToDatabase()
     app.use(bodyParser.json());
 
     app.use('/auth', authRouter);
+
+    app.use('/users', usersRouter);
     app.use('/todos', todosRouter);
 
     app.use((req, res) => {
