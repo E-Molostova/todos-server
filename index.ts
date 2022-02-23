@@ -5,6 +5,7 @@ import { connectToDatabase } from './service/database';
 import { todosRouter } from './routes/api/todos';
 import { authRouter } from './routes/api/auth';
 import { usersRouter } from './routes/api/users';
+import { authenticate } from './middlewares/authenticate';
 require('dotenv').config();
 
 const app = express();
@@ -17,7 +18,7 @@ connectToDatabase()
     app.use(bodyParser.json());
 
     app.use('/auth', authRouter);
-
+    app.use(authenticate);
     app.use('/users', usersRouter);
     app.use('/todos', todosRouter);
 

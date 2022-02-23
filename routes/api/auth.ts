@@ -3,13 +3,12 @@ import { BadRequest, Conflict, Unauthorized } from 'http-errors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 require('dotenv').config();
+const { SECRET_KEY, SECRET_KEY2 } = process.env;
 
 import { collections } from '../../service/database';
 import { joiRegisterSchema, joiLoginSchema } from '../../model/user';
 
 export const authRouter = express.Router();
-
-const { SECRET_KEY, SECRET_KEY2 } = process.env;
 
 authRouter.post('/register', async (req, res, next) => {
   try {
@@ -78,3 +77,46 @@ authRouter.post('/login', async (req, res, next) => {
   }
 });
 
+authRouter.post('/refreshtoken', async (req: any, res) => {
+  try {
+    const { authorization } = req.headers;
+    if (!authorization) {
+      throw new Unauthorized('You are not authorized');
+    }
+    const [bearer, token] = authorization.split(' ');
+    if (bearer !== 'Bearer') {
+      throw new Unauthorized('You are not authorized');
+    }
+
+    jwt.verify(token, SECRET_KEY2);
+    const user = await collections.users.findOne({ refresh_token: token });
+
+    if (!user) {
+      throw new Unauthorized('You are not authorized');
+    }
+    const payload = { id: user._id };
+    const newAccessToken = jwt.sign(payload, SECRET_KEY);
+    const newRefreshToken = jwt.sign(payload, SECRET_KEY2);
+    collections.users.findOneAndUpdate(
+      { refresh_token: token },
+      {
+        $set: {
+          access_token: newAccessToken,
+          refresh_token: newRefreshToken,
+        },
+      },
+    );
+    res.status(201).json({
+      refreshToken: newRefreshToken,
+      user: {
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    if (!error.status) {
+      error.status = 401;
+      error.message = 'Not authorized';
+    }
+  }
+});

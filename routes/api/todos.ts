@@ -2,12 +2,11 @@ import express, { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 import { collections } from '../../service/database';
 import Todo from '../../model/todo';
-import { authenticate } from '../../middlewares/authenticate';
 
 export const todosRouter = express.Router();
 todosRouter.use(express.json());
 
-todosRouter.get('/', authenticate, async (_req: any, res: Response) => {
+todosRouter.get('/', async (_req: any, res: Response) => {
   try {
     const { _id } = _req.user;
     const todos = (await collections.todos
@@ -19,7 +18,7 @@ todosRouter.get('/', authenticate, async (_req: any, res: Response) => {
   }
 });
 
-todosRouter.post('/', authenticate, async (req: any, res: Response) => {
+todosRouter.post('/', async (req: any, res: Response) => {
   try {
     const { _id } = req.user;
 
@@ -38,7 +37,7 @@ todosRouter.post('/', authenticate, async (req: any, res: Response) => {
 
 todosRouter.delete(
   '/clear-completed',
-  authenticate,
+
   async (req: any, res: Response) => {
     try {
       const { _id } = req.user;
@@ -53,7 +52,7 @@ todosRouter.delete(
   },
 );
 
-todosRouter.delete('/:id', authenticate, async (req: any, res: Response) => {
+todosRouter.delete('/:id', async (req: any, res: Response) => {
   const id = req?.params?.id;
   try {
     const { _id } = req.user;
@@ -77,7 +76,7 @@ todosRouter.delete('/:id', authenticate, async (req: any, res: Response) => {
 
 todosRouter.put(
   '/toggle-completed',
-  authenticate,
+
   async (req: any, res: Response) => {
     try {
       const { _id } = req.user;
@@ -110,7 +109,7 @@ todosRouter.put(
   },
 );
 
-todosRouter.put('/:id', authenticate, async (req: any, res: Response) => {
+todosRouter.put('/:id', async (req: any, res: Response) => {
   const id = req?.params?.id;
   try {
     const { _id } = req.user;
@@ -129,16 +128,3 @@ todosRouter.put('/:id', authenticate, async (req: any, res: Response) => {
     res.status(400).send(err.message);
   }
 });
-
-// todosRouter.get('/:id', async (req: Request, res: Response) => {
-//   const id = req?.params?.id;
-//   try {
-//     const query = { _id: new ObjectId(id) };
-//     const todo = (await collections.todos.findOne(query)) as Todo;
-//     if (todo) {
-//       res.status(200).send(todo);
-//     }
-//   } catch (err) {
-//     res.status(404).send(`Unable to find matching document with id: ${id}`);
-//   }
-// });

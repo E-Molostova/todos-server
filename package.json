@@ -32,6 +32,7 @@
     "morgan": "^1.10.0",
     "query-string": "^7.1.0",
     "shortid": "^2.2.16",
+    "typescript": "^4.5.5",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
@@ -41,7 +42,7 @@
     "nodemon": "^2.0.15",
     "prettier": "^2.5.1",
     "ts-node": "^10.4.0",
-    "ts-node-dev": "^1.1.8",
-    "typescipt": "^1.0.0"
+    "ts-node-dev": "^1.1.8"
+    
   }
 }

@@ -37,9 +37,3 @@ export const authenticate = async (req, res, next) => {
     next(error);
   }
 };
-
-export const refreshToken = async (req, res, next) => {
-  try {
-    next();
-  } catch (error) {}
-};
