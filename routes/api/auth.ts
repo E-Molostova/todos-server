@@ -9,7 +9,7 @@ import { joiRegisterSchema, joiLoginSchema } from '../../model/user';
 
 export const authRouter = express.Router();
 
-const { SECRET_KEY } = process.env;
+const { SECRET_KEY, SECRET_KEY2 } = process.env;
 
 authRouter.post('/register', async (req, res, next) => {
   try {
@@ -49,6 +49,7 @@ authRouter.post('/login', async (req, res, next) => {
     if (!user) {
       throw new Unauthorized('Email or password is wrong!');
     }
+
     const passwordCompare = await bcrypt.compare(password, user.password);
     if (!passwordCompare) {
       throw new Unauthorized('Email or password is wrong!');
@@ -57,11 +58,16 @@ authRouter.post('/login', async (req, res, next) => {
     const payload = {
       id: _id,
     };
-    // const token = jwt.sign(payload, SECRET_KEY, { expiresIn: '1h' });
-    const token = jwt.sign(payload, SECRET_KEY);
-    await collections.users.findOneAndUpdate({ _id }, { $set: { token } });
+
+    const access_token = jwt.sign(payload, SECRET_KEY, { expiresIn: '30 min' });
+    const refresh_token = jwt.sign(payload, SECRET_KEY2);
+    await collections.users.findOneAndUpdate(
+      { _id },
+      { $set: { access_token, refresh_token } },
+    );
     res.status(201).json({
-      token,
+      access_token,
+      refresh_token,
       user: {
         email,
         name,
@@ -71,3 +77,4 @@ authRouter.post('/login', async (req, res, next) => {
     next(error);
   }
 });
+
