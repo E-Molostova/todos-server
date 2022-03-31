@@ -6,7 +6,10 @@ export const usersRouter = express.Router();
 
 usersRouter.get('/logout', async (req: any, res) => {
   const { _id } = req.user;
-  await collections.users.findOneAndUpdate({ _id }, { $set: { token: null } });
+  await collections.users.findOneAndUpdate(
+    { _id },
+    { $set: { access_token: null, refresh_token: null } },
+  );
   res.status(204).send();
 });
 
