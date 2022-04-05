@@ -59,7 +59,7 @@ authRouter.post('/login', async (req, res, next) => {
       id: _id,
     };
 
-    const access_token = jwt.sign(payload, SECRET_KEY, { expiresIn: '30 min' });
+    const access_token = jwt.sign(payload, SECRET_KEY, { expiresIn: '1 min' });
     const refresh_token = jwt.sign(payload, SECRET_KEY2);
     await collections.users.findOneAndUpdate(
       { _id },
@@ -80,15 +80,7 @@ authRouter.post('/login', async (req, res, next) => {
 
 authRouter.post('/refreshtoken', async (req: any, res) => {
   try {
-    const { authorization } = req.headers;
-    if (!authorization) {
-      throw new Unauthorized('You are not authorized');
-    }
-    const [bearer, refreshToken] = authorization.split(' ');
-    if (bearer !== 'Bearer') {
-      throw new Unauthorized('You are not authorized');
-    }
-
+    const refreshToken = req.body.refreshToken;
     jwt.verify(refreshToken, SECRET_KEY2);
     const user = await collections.users.findOne({
       refresh_token: refreshToken,
@@ -110,6 +102,7 @@ authRouter.post('/refreshtoken', async (req: any, res) => {
       },
     );
     res.status(201).json({
+      accessToken: newAccessToken,
       refreshToken: newRefreshToken,
       user: {
         name: user.name,

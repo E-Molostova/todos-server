@@ -26,9 +26,7 @@ export const authenticate = async (req, res, next) => {
   } catch (error) {
     const { TokenExpiredError } = jwt;
     if (error instanceof TokenExpiredError) {
-      return res
-        .status(401)
-        .send({ message: 'Unauthorized! Access Token was expired!' });
+      return res.status(401).send('Unauthorized! Access Token was expired!');
     }
     if (!error.status) {
       error.status = 401;

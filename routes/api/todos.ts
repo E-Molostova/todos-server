@@ -21,8 +21,11 @@ todosRouter.get('/', async (_req: any, res: Response) => {
 todosRouter.post('/', async (req: any, res: Response) => {
   try {
     const { _id } = req.user;
-
-    const newTodo = { ...req.body, completed: false, owner: _id } as Todo;
+    const newTodo = {
+      ...req.body,
+      completed: false,
+      owner: _id,
+    } as Todo;
     const result = await collections.todos.insertOne(newTodo);
     const todos = (await collections.todos
       .find({ owner: _id })
